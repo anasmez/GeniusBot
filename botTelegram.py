@@ -1,7 +1,8 @@
 from dotenv import load_dotenv
 import os, telegram, logging, lyricsgenius, re
-from telegram.ext import Updater, CommandHandler
+from telegram.ext import Updater, CommandHandler, InlineQueryHandler
 from pprint import pprint
+from telegram import InlineQueryResultArticle, InputTextMessageContent
 
 load_dotenv()
 
@@ -33,11 +34,28 @@ def song(update, context):
         result+=""+str(index+1)+".  "+item['result']['full_title']+"\n"
     context.bot.send_message(chat_id=update.effective_chat.id, text=result)
 
+def inline_song(update, context):
+    query=update.inline_query.query
+    if not query:
+        return
+    results=list()
+    results.append(
+        InlineQueryResultArticle(
+            id=query.upper(),
+            title="Results",
+            input_message_content=InputTextMessageContent(query.upper())
+        )
+    )
+    context.bot.answer_inline_query(update.inline_query.id, results)
+
 start_handler = CommandHandler('start', start)
 dispatcher.add_handler(start_handler)
 
 song_handler = CommandHandler('song', song)
 dispatcher.add_handler(song_handler)
+
+inline_song_handler=InlineQueryHandler(inline_song)
+dispatcher.add_handler(inline_song_handler)
 
 updater.start_polling()
 updater.idle()
