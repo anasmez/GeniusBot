@@ -8,18 +8,15 @@ from telegram.ext import (Updater,
 from pprint import pprint
 from telegram import InlineQueryResultArticle, InputTextMessageContent, Update, Message
 
-TELEGRAM_BOT_TOKEN = tokens.TELEGRAM_BOT_TOKEN
 GENIUS_ACCESS_TOKEN = tokens.GENIUS_ACCESS_TOKEN
+TELEGRAM_BOT_TOKEN = tokens.TELEGRAM_BOT_TOKEN
 
-bot = telegram.Bot(token=TELEGRAM_BOT_TOKEN)
 genius = lyricsgenius.Genius(GENIUS_ACCESS_TOKEN)
+bot = telegram.Bot(token=TELEGRAM_BOT_TOKEN)
 
-print("Bot working!\n", bot.get_me())
-
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                     level=logging.INFO)
 global lyrics_searched
-lyrics_searched=list()
+lyrics_searched=dict()
+
 
 def search(song_name):
     songs=genius.search_songs(song_name)
@@ -48,10 +45,10 @@ def search(song_name):
 
     return list_songs
 
-def start(update, context):
+def start(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Hi, I'm a genius bot. You can use me inline just by typing my name an the name of the song or artist i.e @GenyusBot stromae")
 
-# def song(update, context):
+# def song(update: Update, context: CallbackContext):
 #     song_name=re.sub(r"\/song ", "", update.message.text)
 #     result=search(song_name)
 #     context.bot.send_message(chat_id=update.effective_chat.id, text="[Google](www.google.es)", parse_mode='MarkdownV2')
@@ -82,7 +79,7 @@ def inline_song(update: Update, context: CallbackContext):
 def easter_egg(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Marchando!")
 
-# In case you need to send a message to user when making the inline request
+'''In case you need to send a message to user when making the inline request'''
 
 # def on_result_chosen(update: Update, context: CallbackContext):
 #     print(update.to_dict())
@@ -97,24 +94,35 @@ def easter_egg(update: Update, context: CallbackContext):
 #     bot.send_message(update.chosen_inline_result.from_user.id, text="message to user")
 
 
-updater = Updater(token=TELEGRAM_BOT_TOKEN)
-dispatcher = updater.dispatcher
+def main():
+    print("Bot working!\n", bot.get_me())
 
-# song_handler = CommandHandler('song', song)
-# dispatcher.add_handler(song_handler)
+    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                        level=logging.INFO)
 
-start_handler = CommandHandler('start', start)
-dispatcher.add_handler(start_handler)
+    updater = Updater(token=TELEGRAM_BOT_TOKEN)
+    dispatcher = updater.dispatcher
 
-easter_egg_handler = CommandHandler('amborguesa', easter_egg)
-dispatcher.add_handler(easter_egg_handler)
+    # song_handler = CommandHandler('song', song)
+    # dispatcher.add_handler(song_handler)
 
-inline_song_handler = InlineQueryHandler(inline_song, run_async=False)
-dispatcher.add_handler(inline_song_handler)
+    start_handler = CommandHandler('start', start)
+    dispatcher.add_handler(start_handler)
 
-# result_chosen_handler = ChosenInlineResultHandler(on_result_chosen, run_async=True)
-# dispatcher.add_handler(result_chosen_handler)
+    easter_egg_handler = CommandHandler('amborguesa', easter_egg)
+    dispatcher.add_handler(easter_egg_handler)
 
-updater.start_polling()
+    inline_song_handler = InlineQueryHandler(inline_song, run_async=True)
+    dispatcher.add_handler(inline_song_handler)
 
-updater.idle()
+    '''Chosen result handler'''
+
+    # result_chosen_handler = ChosenInlineResultHandler(on_result_chosen, run_async=True)
+    # dispatcher.add_handler(result_chosen_handler)
+
+    updater.start_polling()
+
+    updater.idle()
+
+if __name__ == "__main__":
+    main()
