@@ -79,6 +79,8 @@ def inline_song(update: Update, context: CallbackContext):
         )
     context.bot.answer_inline_query(update.inline_query.id, results)
 
+def easter_egg(update: Update, context: CallbackContext):
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Marchando!")
 
 # In case you need to send a message to user when making the inline request
 
@@ -103,6 +105,9 @@ dispatcher = updater.dispatcher
 
 start_handler = CommandHandler('start', start)
 dispatcher.add_handler(start_handler)
+
+easter_egg_handler = CommandHandler('amborguesa', easter_egg)
+dispatcher.add_handler(easter_egg_handler)
 
 inline_song_handler = InlineQueryHandler(inline_song, run_async=False)
 dispatcher.add_handler(inline_song_handler)
