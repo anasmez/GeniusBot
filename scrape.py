@@ -1,5 +1,5 @@
 import requests, re, time
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, SoupStrainer
 import concurrent.futures
 
 
@@ -11,8 +11,8 @@ def find_lyrics(URL):
     global lyrics_searched
     lyrics_searched=dict()
     page = requests.get(URL)
-
-    soup = BeautifulSoup(page.text, 'html.parser')
+    
+    soup = BeautifulSoup(page.text, 'lxml-xml')
 
     lyrics = soup.find("div", class_="lyrics")
     if(lyrics):
